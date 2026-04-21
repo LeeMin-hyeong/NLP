@@ -1,0 +1,141 @@
+{
+  "project_summary": "Requirements draft from 8 utterances (Client, PM) with 2 functional requirements, 2 non-functional requirements, 1 constraints, and 6 open questions.",
+  "functional_requirements": [
+    {
+      "id": "FR1",
+      "text": "We need a platform for volunteer tutors to post available time slots.",
+      "priority": "medium",
+      "evidence": [
+        "U1"
+      ]
+    },
+    {
+      "id": "FR2",
+      "text": "Parents should request slots and receive approval messages.",
+      "priority": "medium",
+      "evidence": [
+        "U2"
+      ]
+    }
+  ],
+  "non_functional_requirements": [
+    {
+      "id": "NFR1",
+      "text": "It should look modern.",
+      "priority": "medium",
+      "evidence": [
+        "U4"
+      ]
+    },
+    {
+      "id": "NFR2",
+      "text": "Fast, but I do not have an exact target yet.",
+      "priority": "medium",
+      "evidence": [
+        "U8"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "text": "The first version is web only, not iOS or Android apps.",
+      "evidence": [
+        "U3"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "text": "No payment for now because sessions are free.",
+      "evidence": [
+        "U6"
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "text": "Ambiguous quality target needs clarification: It should look modern.",
+      "evidence": [
+        "U4"
+      ]
+    },
+    {
+      "text": "Do you need payment processing?",
+      "evidence": [
+        "U5"
+      ]
+    },
+    {
+      "text": "How quickly should approval messages be sent?",
+      "evidence": [
+        "U7"
+      ]
+    },
+    {
+      "text": "Ambiguous quality target needs clarification: Fast, but I do not have an exact target yet.",
+      "evidence": [
+        "U8"
+      ]
+    },
+    {
+      "text": "How should this quality requirement be measured: It should look modern.?",
+      "evidence": [
+        "U4"
+      ]
+    },
+    {
+      "text": "How should this quality requirement be measured: Fast, but I do not have an exact target yet.?",
+      "evidence": [
+        "U8"
+      ]
+    }
+  ],
+  "follow_up_questions": [
+    "Can you clarify: Ambiguous quality target needs clarification: It should look modern?",
+    "Do you need payment processing?",
+    "How quickly should approval messages be sent?",
+    "Can you clarify: Ambiguous quality target needs clarification: Fast, but I do not have an exact target yet?"
+  ],
+  "utterances": [
+    {
+      "id": "U1",
+      "speaker": "Client",
+      "text": "We need a platform for volunteer tutors to post available time slots."
+    },
+    {
+      "id": "U2",
+      "speaker": "Client",
+      "text": "Parents should request slots and receive approval messages."
+    },
+    {
+      "id": "U3",
+      "speaker": "Client",
+      "text": "The first version is web only, not iOS or Android apps."
+    },
+    {
+      "id": "U4",
+      "speaker": "Client",
+      "text": "It should look modern."
+    },
+    {
+      "id": "U5",
+      "speaker": "PM",
+      "text": "Do you need payment processing?"
+    },
+    {
+      "id": "U6",
+      "speaker": "Client",
+      "text": "No payment for now because sessions are free."
+    },
+    {
+      "id": "U7",
+      "speaker": "PM",
+      "text": "How quickly should approval messages be sent?"
+    },
+    {
+      "id": "U8",
+      "speaker": "Client",
+      "text": "Fast, but I do not have an exact target yet."
+    }
+  ]
+}

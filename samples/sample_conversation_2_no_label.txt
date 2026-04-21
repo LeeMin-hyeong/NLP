@@ -1,0 +1,9 @@
+Our school clubs need an app to publish weekly meeting schedules.
+Club leaders should create and update events.
+Students should join events and receive reminder notifications.
+It should be easy to use for freshmen.
+Maybe attendance analytics can be added later.
+You should give us specific deadline for attendance analytics.
+I think it's okay for May 3rd.
+Who is allowed to cancel events?
+Only club leaders and the student council should cancel events.

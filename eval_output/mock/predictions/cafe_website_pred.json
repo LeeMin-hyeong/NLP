@@ -1,0 +1,137 @@
+{
+  "project_summary": "Requirements draft from 7 utterances (Client, PM) with 3 functional requirements, 2 non-functional requirements, 0 constraints, and 6 open questions.",
+  "functional_requirements": [
+    {
+      "id": "FR1",
+      "text": "We need a website for our cafe where customers can see the menu and opening hours.",
+      "priority": "medium",
+      "evidence": [
+        "U1"
+      ]
+    },
+    {
+      "id": "FR2",
+      "text": "Customers should be able to reserve tables online.",
+      "priority": "medium",
+      "evidence": [
+        "U2"
+      ]
+    },
+    {
+      "id": "FR3",
+      "text": "Yes, an admin page should let staff edit menu items and prices.",
+      "priority": "medium",
+      "evidence": [
+        "U4"
+      ]
+    }
+  ],
+  "non_functional_requirements": [
+    {
+      "id": "NFR1",
+      "text": "The site must load fast on mobile because most customers use phones.",
+      "priority": "medium",
+      "evidence": [
+        "U5"
+      ]
+    },
+    {
+      "id": "NFR2",
+      "text": "I want a clean and modern design, and maybe online payment later.",
+      "priority": "medium",
+      "evidence": [
+        "U6"
+      ]
+    }
+  ],
+  "constraints": [],
+  "assumptions": [
+    {
+      "text": "I want a clean and modern design, and maybe online payment later.",
+      "evidence": [
+        "U6"
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "text": "Should staff update menu items themselves?",
+      "evidence": [
+        "U3"
+      ]
+    },
+    {
+      "text": "Ambiguous quality target needs clarification: The site must load fast on mobile because most customers use phones.",
+      "evidence": [
+        "U5"
+      ]
+    },
+    {
+      "text": "Ambiguous quality target needs clarification: I want a clean and modern design, and maybe online payment later.",
+      "evidence": [
+        "U6"
+      ]
+    },
+    {
+      "text": "Do you already have a preferred payment provider?",
+      "evidence": [
+        "U7"
+      ]
+    },
+    {
+      "text": "How should this quality requirement be measured: The site must load fast on mobile because most customers use phones.?",
+      "evidence": [
+        "U5"
+      ]
+    },
+    {
+      "text": "How should this quality requirement be measured: I want a clean and modern design, and maybe online payment later.?",
+      "evidence": [
+        "U6"
+      ]
+    }
+  ],
+  "follow_up_questions": [
+    "Should staff update menu items themselves?",
+    "Can you clarify: Ambiguous quality target needs clarification: The site must load fast on mobile because most customers use phones?",
+    "Can you clarify: Ambiguous quality target needs clarification: I want a clean and modern design, and maybe online payment later?",
+    "Do you already have a preferred payment provider?"
+  ],
+  "utterances": [
+    {
+      "id": "U1",
+      "speaker": "Client",
+      "text": "We need a website for our cafe where customers can see the menu and opening hours."
+    },
+    {
+      "id": "U2",
+      "speaker": "Client",
+      "text": "Customers should be able to reserve tables online."
+    },
+    {
+      "id": "U3",
+      "speaker": "PM",
+      "text": "Should staff update menu items themselves?"
+    },
+    {
+      "id": "U4",
+      "speaker": "Client",
+      "text": "Yes, an admin page should let staff edit menu items and prices."
+    },
+    {
+      "id": "U5",
+      "speaker": "Client",
+      "text": "The site must load fast on mobile because most customers use phones."
+    },
+    {
+      "id": "U6",
+      "speaker": "Client",
+      "text": "I want a clean and modern design, and maybe online payment later."
+    },
+    {
+      "id": "U7",
+      "speaker": "PM",
+      "text": "Do you already have a preferred payment provider?"
+    }
+  ]
+}

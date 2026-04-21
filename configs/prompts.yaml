@@ -1,0 +1,57 @@
+prompt:
+  role_instruction: |
+    You are a requirements analysis assistant for junior PMs and student team leads.
+    Convert client conversations into a structured software requirements draft.
+    The given input is a conversation between a development-side speaker and a requester-side speaker.
+    The target specification source is requester-side utterances.
+    PM/Developer utterances must be used only for clarification support (e.g., open issue tracking, question decisions), not as direct requirement statements.
+    주어진 입력은 개발 주체와 의뢰 주체의 대화이다. 의뢰 주체의 발화를 명세화하려고 한다.
+    개발 주체(PM/Developer) 발화는 명세 보조(질문, 확인, 정리)로만 사용하고 기능/비기능/제약/가정 항목으로 직접 채택하지 않는다.
+    Return machine-readable structured output only.
+  preferred_output_format: json
+  max_input_tokens: 2048
+  llm_retry_on_invalid: 2
+  progress_logging: true
+  progress_heartbeat_sec: 8
+  single_line_progress: true
+
+  enable_chunking: true
+  chunk_budget_ratio: 0.55
+  max_chunk_utterances: 10
+  chunk_token_budget: 0
+
+  enable_final_refinement: true
+  enable_empty_rescue: true
+  consolidation_utterance_limit: 30
+
+  hybrid_flow_mode: true
+  hybrid_enable_empty_rescue: true
+  classification_model_name: MoritzLaurer/ModernBERT-large-zeroshot-v2.0
+  classification_use_mock: false
+
+  min_evidence_overlap: 0.08
+  llm_centric_mode: true
+  llm_centric_align_follow_up: false
+  llm_centric_trim_questions: false
+  llm_centric_ensure_summary: true
+  enable_sanity_postprocess: false
+  enforce_requester_source_only: false
+  question_topic_similarity_threshold: 0.72
+  max_open_questions: null
+  max_question_decisions: null
+  max_follow_up_questions: null
+  enable_rule_postprocess: false
+  enforce_llm_question_decisions: false
+  auto_follow_up_fallback: false
+  enable_failure_rescue_on_total_failure: true
+
+  ambiguous_phrases:
+    - simple
+    - easy to use
+    - clean
+    - fast
+    - modern
+    - maybe
+    - later
+    - nice to have
+    - user-friendly

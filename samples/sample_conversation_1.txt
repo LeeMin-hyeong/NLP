@@ -1,0 +1,7 @@
+Client: We need a website for our cafe where customers can see the menu and opening hours.
+Client: Customers should be able to reserve tables online.
+PM: Should staff update menu items themselves?
+Client: Yes, an admin page should let staff edit menu items and prices.
+Client: The site must load fast on mobile because most customers use phones.
+Client: I want a clean and modern design, and maybe online payment later.
+PM: Do you already have a preferred payment provider?

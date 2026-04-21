@@ -1,0 +1,181 @@
+Client: Hi, thanks for meeting with me. We run a small dessert cafe in our neighborhood, and we want to make a website for the business.
+
+Developer: Hi, great. Could you tell me the main purpose of the website?
+
+Client: The biggest goal is to let people see who we are, what desserts we sell, and where the cafe is. A lot of customers ask for our menu and opening hours through Instagram DM, so we want the website to handle that better.
+
+Developer: Got it. So at minimum, you want a website that introduces the cafe, shows the menu, and provides location and business hour information.
+
+Client: Yes, exactly. And it should look clean and warm, not too corporate.
+
+Developer: Understood. When you say “clean and warm,” do you have any examples of websites you like?
+
+Client: Not exactly, but something simple, cute, and modern. Easy to use on the phone too, because most of our customers are younger and use mobile.
+
+Developer: Okay. Mobile usability is important. Do you want customers to place orders directly through the website?
+
+Client: Maybe not right away. For now, I think it would be enough if they could see the menu and maybe click a button to contact us or go to our delivery platform. Later, online ordering on the website itself might be nice.
+
+Developer: So online ordering is not required for the first version, but it may be considered in a later phase.
+
+Client: Yes, that sounds right.
+
+Developer: What pages do you think you need?
+
+Client: Probably a home page, an about page, a menu page, and a contact page. Maybe also a page for seasonal promotions or events.
+
+Developer: Should promotions and events be managed by you or your staff?
+
+Client: Yes, ideally we should be able to update those ourselves. We change seasonal items pretty often, and I don’t want to ask a developer every time.
+
+Developer: Understood. So you would like some kind of admin feature to update menu items and promotions.
+
+Client: Yes, but not anything too complicated. I’m not very technical, so it needs to be easy.
+
+Developer: That makes sense. For the menu itself, what information should each item include?
+
+Client: Definitely the name, price, and photo. A short description would be good too. And maybe labels like “best seller” or “seasonal.”
+
+Developer: Do you also want allergy information or ingredients?
+
+Client: Hmm, maybe for some items. We have customers who ask whether desserts contain nuts or dairy. I’m not sure if we need full ingredient details for everything, though.
+
+Developer: Okay, that might need clarification later. Do you want the menu organized by category?
+
+Client: Yes. Cakes, cookies, drinks, and seasonal specials.
+
+Developer: Got it. What about table reservations?
+
+Client: No, we don’t need reservations. We’re a small cafe, and that would probably be too much for now.
+
+Developer: Do you want a map on the contact page?
+
+Client: Yes, definitely. People often have trouble finding the entrance, so a map and parking information would help.
+
+Developer: Would you like a contact form as well?
+
+Client: Maybe, but honestly most people just use Instagram or call us. So if it makes things simpler, I’d rather just show our phone number, Instagram link, and address.
+
+Developer: That’s helpful. Simplicity is a priority then.
+
+Client: Yes. I don’t want the site to feel overloaded.
+
+Developer: Do you need customer accounts or login for regular visitors?
+
+Client: No, not at all.
+
+Developer: And for admin access, should only you have access, or also other staff?
+
+Client: Maybe me and one manager. But I haven’t thought through exactly what each person should be able to edit.
+
+Developer: Okay, so user roles may need to be clarified.
+
+Client: Yes.
+
+Developer: Do you already have branding materials such as a logo, colors, and photos?
+
+Client: We have a logo and some product photos, but I think some photos are not high quality. We may need placeholders at first.
+
+Developer: That’s fine. We can design it so that photos can be replaced later. Do you want the site in Korean only, or multiple languages?
+
+Client: For now Korean is enough, but maybe English later because we sometimes get foreign customers.
+
+Developer: Understood. So multilingual support is not required for launch, but could be a future extension.
+
+Client: Yes.
+
+Developer: How important is search engine visibility? Do you want people to find the website through Google search?
+
+Client: Yes, I think that would be good. I don’t know much about SEO, but I want people searching for our cafe to find us easily.
+
+Developer: Okay, so basic SEO support is important.
+
+Client: Yes, but I don’t need anything too advanced.
+
+Developer: What about social media integration? For example, showing your Instagram feed on the website.
+
+Client: That would be nice if it’s easy, because we already post there often. But it’s not a must-have.
+
+Developer: Got it. That sounds like a lower-priority feature.
+
+Client: Right.
+
+Developer: Do you want to collect customer emails for newsletters or promotions?
+
+Client: No, I don’t think so. We’re too small for that right now.
+
+Developer: Are there any legal or business constraints we should know about?
+
+Client: Not much, but we do have a limited budget. We’re a small business, so I want to keep the first version pretty lean.
+
+Developer: Could you share a rough budget range?
+
+Client: I’d prefer not to go too high. If possible, I want the initial version to stay within a modest small-business budget. We don’t need anything fancy.
+
+Developer: Understood. We’ll keep scope focused. Do you have a target launch date?
+
+Client: Ideally before the fall dessert season starts, so around six weeks from now. We have a seasonal menu coming then, and I’d love to promote it on the site.
+
+Developer: Six weeks is helpful. We may need to limit the first release to essential features to meet that timeline.
+
+Client: Yes, that’s okay. I’d rather launch something simple and polished than wait forever.
+
+Developer: Good. Are there any specific performance expectations? For example, fast loading speed?
+
+Client: Yes, I hate slow websites. It should load quickly, especially on mobile. Some customers may be using cellular data.
+
+Developer: Okay, fast mobile performance is an important non-functional requirement. Any accessibility needs we should consider?
+
+Client: I haven’t thought about it deeply, but it should be readable and not confusing. Some of our customers are older too.
+
+Developer: Understood. We should make the text readable and navigation simple. Do you need online payment on the site?
+
+Client: Not in the first version. If online ordering ever happens, payment would come later with that.
+
+Developer: Do you want analytics, like seeing how many people visit the site?
+
+Client: That would be useful, yes, as long as it’s simple for us to check.
+
+Developer: Okay. Basic visitor analytics may be included. What about customer reviews or testimonials?
+
+Client: Maybe a few featured reviews would be nice, but I don’t want people directly posting comments on the site. Managing that sounds annoying.
+
+Developer: So static testimonials could be okay, but no user-generated review system.
+
+Client: Exactly.
+
+Developer: For promotions and seasonal items, how often do you update them?
+
+Client: Sometimes weekly, sometimes monthly. That’s why being able to change content ourselves is important.
+
+Developer: Should menu items be hidden automatically when they are out of season, or would you manually manage that?
+
+Client: Hmm, I think manual is fine for now. Automatic scheduling sounds nice, but probably not necessary yet.
+
+Developer: Good to know. Do you want the admin interface to support draft mode, or can edits go live immediately?
+
+Client: I think live immediately is okay, unless that makes mistakes too risky.
+
+Developer: We may want to discuss whether preview is needed. It depends on how comfortable you are editing content.
+
+Client: Right. I’m not sure yet.
+
+Developer: Is there anything you absolutely do not want in the project?
+
+Client: I don’t want a complicated system with too many buttons, and I don’t want maintenance to become expensive. Also, I don’t want something that only works well on desktop.
+
+Developer: Understood. Simplicity, low maintenance, and strong mobile support are all key goals.
+
+Client: Yes.
+
+Developer: Let me summarize what I heard. For the first release, you want a clean mobile-friendly cafe website with home, about, menu, and contact information. The menu should show item name, price, image, and description, organized by category. You want basic admin capability for updating menu items and promotions. No customer accounts, no reservations, and no direct online ordering for version one. You also want basic SEO, map/location info, and simple contact information. Is that accurate?
+
+Client: Yes, that sounds right.
+
+Developer: And the things that are still unclear include allergy information depth, admin role permissions, whether Instagram integration should be included now, how analytics should work, and whether preview is needed before content changes go live.
+
+Client: Yes, those are the kinds of details I still need to think about.
+
+Developer: Great. Then the next step is for me to draft a requirements document and a short list of follow-up questions before we define final scope.
+
+Client: Perfect. That would help a lot.

@@ -1,0 +1,7 @@
+Client: Our school clubs need an app to publish weekly meeting schedules.
+Client: Club leaders should create and update events.
+Client: Students should join events and receive reminder notifications.
+Client: It should be easy to use for freshmen.
+Client: Maybe attendance analytics can be added later.
+PM: Who is allowed to cancel events?
+Client: Only club leaders and the student council should cancel events.

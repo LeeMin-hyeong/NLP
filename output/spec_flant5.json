@@ -1,0 +1,129 @@
+{
+  "project_summary": "Requirements draft from 7 utterances (Client, PM) with 3 functional requirements, 1 non-functional requirements, 1 constraints, and 1 open questions.",
+  "functional_requirements": [
+    {
+      "id": "FR1",
+      "text": "Our school clubs need an app to publish weekly meeting schedules.",
+      "priority": "medium",
+      "evidence": [
+        "U1"
+      ]
+    },
+    {
+      "id": "FR2",
+      "text": "Club leaders should create and update events.",
+      "priority": "medium",
+      "evidence": [
+        "U2"
+      ]
+    },
+    {
+      "id": "FR3",
+      "text": "Students should join events and receive reminder notifications.",
+      "priority": "medium",
+      "evidence": [
+        "U3"
+      ]
+    }
+  ],
+  "non_functional_requirements": [
+    {
+      "id": "NFR1",
+      "text": "It should be easy to use for freshmen.",
+      "priority": "medium",
+      "evidence": [
+        "U4"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "text": "Only club leaders and the student council should cancel events.",
+      "evidence": [
+        "U7"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "text": "Maybe attendance analytics can be added later.",
+      "evidence": [
+        "U5"
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "text": "Who is allowed to cancel events?",
+      "evidence": [
+        "U6"
+      ]
+    }
+  ],
+  "follow_up_questions": [
+    "Can you clarify: Maybe attendance analytics can be added later?"
+  ],
+  "question_decisions": [
+    {
+      "text": "Who is allowed to cancel events?",
+      "decision": "resolved",
+      "suggested_follow_up": null,
+      "evidence": [
+        "U6"
+      ]
+    },
+    {
+      "text": "Maybe attendance analytics can be added later.",
+      "decision": "needs_follow_up",
+      "suggested_follow_up": "Can you clarify: Maybe attendance analytics can be added later?",
+      "evidence": [
+        "U5"
+      ]
+    }
+  ],
+  "utterances": [
+    {
+      "id": "U1",
+      "speaker": "Client",
+      "text": "Our school clubs need an app to publish weekly meeting schedules."
+    },
+    {
+      "id": "U2",
+      "speaker": "Client",
+      "text": "Club leaders should create and update events."
+    },
+    {
+      "id": "U3",
+      "speaker": "Client",
+      "text": "Students should join events and receive reminder notifications."
+    },
+    {
+      "id": "U4",
+      "speaker": "Client",
+      "text": "It should be easy to use for freshmen."
+    },
+    {
+      "id": "U5",
+      "speaker": "Client",
+      "text": "Maybe attendance analytics can be added later."
+    },
+    {
+      "id": "U6",
+      "speaker": "PM",
+      "text": "Who is allowed to cancel events?"
+    },
+    {
+      "id": "U7",
+      "speaker": "Client",
+      "text": "Only club leaders and the student council should cancel events."
+    }
+  ],
+  "run_metadata": {
+    "execution_time_sec": 6.020137,
+    "model_latency_sec": 1.315734,
+    "model_name": "google/flan-t5-small",
+    "prompt_tokens": 2506,
+    "completion_tokens": 43,
+    "generated_at": "2026-04-21T14:23:47"
+  }
+}

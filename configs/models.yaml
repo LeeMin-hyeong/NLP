@@ -1,0 +1,115 @@
+default_model: flan_t5_small
+
+default_context_window_hint: 4096
+
+comparison_models:
+  - phi_3_5_mini_instruct
+  - qwen_2_5_1_5b_instruct
+  - qwen_2_5_0_5b_instruct
+  - mock
+
+generation_defaults:
+  max_new_tokens: 256
+  temperature: 0.0
+  top_p: 1.0
+  do_sample: false
+
+models:
+  mock:
+    type: mock
+
+  distilgpt2:
+    type: huggingface
+    model_name: distilgpt2
+    task: text-generation
+    context_window_hint: 1024
+
+  flan_t5_small:
+    type: huggingface
+    model_name: google/flan-t5-small
+    task: text2text-generation
+    context_window_hint: 512
+    generation:
+      max_new_tokens: 192
+    prompt_overrides:
+      enable_final_refinement: false
+      prompt_profile: compact
+
+  flan_t5_base:
+    type: huggingface
+    model_name: google/flan-t5-base
+    task: text2text-generation
+    context_window_hint: 512
+    generation:
+      max_new_tokens: 224
+    prompt_overrides:
+      enable_final_refinement: false
+      prompt_profile: compact
+
+  phi_3_5_mini_instruct:
+    type: huggingface
+    model_name: microsoft/Phi-3.5-mini-instruct
+    task: text-generation
+    context_window_hint: 4096
+    generation:
+      max_new_tokens: 256
+
+  qwen_2_5_1_5b_instruct:
+    type: huggingface
+    model_name: Qwen/Qwen2.5-1.5B-Instruct
+    task: text-generation
+    context_window_hint: 32768
+    generation:
+      max_new_tokens: 512
+
+  qwen_2_5_0_5b_instruct:
+    type: huggingface
+    model_name: Qwen/Qwen2.5-0.5B-Instruct
+    task: text-generation
+    context_window_hint: 32768
+    generation:
+      max_new_tokens: 512
+
+  tinyllama_1_1b_chat:
+    type: huggingface
+    model_name: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    task: text-generation
+    context_window_hint: 2048
+    generation:
+      max_new_tokens: 256
+    prompt_overrides:
+      enable_final_refinement: false
+      prompt_profile: compact
+
+  smollm2_135m_instruct:
+    type: huggingface
+    model_name: HuggingFaceTB/SmolLM2-135M-Instruct
+    task: text-generation
+    context_window_hint: 2048
+    generation:
+      max_new_tokens: 192
+    prompt_overrides:
+      enable_final_refinement: false
+      prompt_profile: compact
+
+  smollm2_360m_instruct:
+    type: huggingface
+    model_name: HuggingFaceTB/SmolLM2-360M-Instruct
+    task: text-generation
+    context_window_hint: 4096
+    generation:
+      max_new_tokens: 224
+    prompt_overrides:
+      enable_final_refinement: false
+      prompt_profile: compact
+
+  smollm2_1_7b_instruct:
+    type: huggingface
+    model_name: HuggingFaceTB/SmolLM2-1.7B-Instruct
+    task: text-generation
+    context_window_hint: 8192
+    generation:
+      max_new_tokens: 256
+    prompt_overrides:
+      enable_final_refinement: false
+      prompt_profile: compact

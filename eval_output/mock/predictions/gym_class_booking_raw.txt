@@ -1,0 +1,123 @@
+{
+  "project_summary": "Draft requirements extracted from 7 utterances involving Client, PM.",
+  "functional_requirements": [
+    {
+      "text": "I run a gym and need members to book classes from mobile.",
+      "evidence": [
+        "U1"
+      ],
+      "id": "FR1",
+      "priority": "medium"
+    },
+    {
+      "text": "Trainers should set class capacity and mark attendance.",
+      "evidence": [
+        "U2"
+      ],
+      "id": "FR2",
+      "priority": "medium"
+    },
+    {
+      "text": "We must use our existing Google Workspace login.",
+      "evidence": [
+        "U3"
+      ],
+      "id": "FR3",
+      "priority": "medium"
+    },
+    {
+      "text": "Cancellation policy is not decided yet.",
+      "evidence": [
+        "U7"
+      ],
+      "id": "FR4",
+      "priority": "medium"
+    }
+  ],
+  "non_functional_requirements": [
+    {
+      "text": "Booking confirmation should arrive within a few seconds.",
+      "evidence": [
+        "U4"
+      ],
+      "id": "NFR1",
+      "priority": "medium"
+    }
+  ],
+  "constraints": [
+    {
+      "text": "We must use our existing Google Workspace login.",
+      "evidence": [
+        "U3"
+      ]
+    },
+    {
+      "text": "Booking confirmation should arrive within a few seconds.",
+      "evidence": [
+        "U4"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "text": "Nice to have a leaderboard later.",
+      "evidence": [
+        "U5"
+      ]
+    },
+    {
+      "text": "Cancellation policy is not decided yet.",
+      "evidence": [
+        "U7"
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "text": "Should members be able to cancel bookings anytime?",
+      "evidence": [
+        "U6"
+      ]
+    }
+  ],
+  "follow_up_questions": [
+    "Should members be able to cancel bookings anytime?"
+  ],
+  "utterances": [
+    {
+      "id": "U1",
+      "speaker": "Client",
+      "text": "I run a gym and need members to book classes from mobile."
+    },
+    {
+      "id": "U2",
+      "speaker": "Client",
+      "text": "Trainers should set class capacity and mark attendance."
+    },
+    {
+      "id": "U3",
+      "speaker": "Client",
+      "text": "We must use our existing Google Workspace login."
+    },
+    {
+      "id": "U4",
+      "speaker": "Client",
+      "text": "Booking confirmation should arrive within a few seconds."
+    },
+    {
+      "id": "U5",
+      "speaker": "Client",
+      "text": "Nice to have a leaderboard later."
+    },
+    {
+      "id": "U6",
+      "speaker": "PM",
+      "text": "Should members be able to cancel bookings anytime?"
+    },
+    {
+      "id": "U7",
+      "speaker": "Client",
+      "text": "Cancellation policy is not decided yet."
+    }
+  ]
+}

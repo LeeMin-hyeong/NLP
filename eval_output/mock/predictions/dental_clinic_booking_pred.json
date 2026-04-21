@@ -1,0 +1,109 @@
+{
+  "project_summary": "Requirements draft from 7 utterances (Client, PM) with 3 functional requirements, 1 non-functional requirements, 1 constraints, and 3 open questions.",
+  "functional_requirements": [
+    {
+      "id": "FR1",
+      "text": "We need a web system for a dental clinic where patients can book appointments.",
+      "priority": "medium",
+      "evidence": [
+        "U1"
+      ]
+    },
+    {
+      "id": "FR2",
+      "text": "Receptionists must see daily bookings and mark no-shows.",
+      "priority": "medium",
+      "evidence": [
+        "U2"
+      ]
+    },
+    {
+      "id": "FR3",
+      "text": "We cannot exceed a 3 month timeline.",
+      "priority": "medium",
+      "evidence": [
+        "U4"
+      ]
+    }
+  ],
+  "non_functional_requirements": [
+    {
+      "id": "NFR1",
+      "text": "It should feel simple and user-friendly.",
+      "priority": "medium",
+      "evidence": [
+        "U5"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "text": "We cannot exceed a 3 month timeline.",
+      "evidence": [
+        "U4"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "open_questions": [
+    {
+      "text": "Ambiguous quality target needs clarification: It should feel simple and user-friendly.",
+      "evidence": [
+        "U5"
+      ]
+    },
+    {
+      "text": "Do patients need SMS reminders?",
+      "evidence": [
+        "U6"
+      ]
+    },
+    {
+      "text": "How should this quality requirement be measured: It should feel simple and user-friendly.?",
+      "evidence": [
+        "U5"
+      ]
+    }
+  ],
+  "follow_up_questions": [
+    "Can you clarify: Ambiguous quality target needs clarification: It should feel simple and user-friendly?",
+    "Do patients need SMS reminders?"
+  ],
+  "utterances": [
+    {
+      "id": "U1",
+      "speaker": "Client",
+      "text": "We need a web system for a dental clinic where patients can book appointments."
+    },
+    {
+      "id": "U2",
+      "speaker": "Client",
+      "text": "Receptionists must see daily bookings and mark no-shows."
+    },
+    {
+      "id": "U3",
+      "speaker": "Client",
+      "text": "It has to work on old office PCs with slow internet."
+    },
+    {
+      "id": "U4",
+      "speaker": "Client",
+      "text": "We cannot exceed a 3 month timeline."
+    },
+    {
+      "id": "U5",
+      "speaker": "Client",
+      "text": "It should feel simple and user-friendly."
+    },
+    {
+      "id": "U6",
+      "speaker": "PM",
+      "text": "Do patients need SMS reminders?"
+    },
+    {
+      "id": "U7",
+      "speaker": "Client",
+      "text": "Yes, but we have not chosen an SMS vendor yet."
+    }
+  ]
+}
