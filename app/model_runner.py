@@ -12,7 +12,7 @@ import time
 from typing import Optional
 
 from app.prompt_builder import build_prompt
-from app.utils import normalize_text
+from app.utils import normalize_text, resolve_preferred_torch_device
 
 
 @dataclass
@@ -124,13 +124,10 @@ class HuggingFaceZeroShotClassificationRunner(BaseClassificationRunner):
         if self._classifier is not None:
             return
 
-        import torch
         from transformers import pipeline
 
-        device = -1
-        if torch.cuda.is_available():
-            device = 0
-        # MPS can be unstable in zero-shot pipeline across versions; keep CPU fallback for consistency.
+        device, _ = resolve_preferred_torch_device()
+
         self._classifier = pipeline(
             task="zero-shot-classification",
             model=self.model_name,

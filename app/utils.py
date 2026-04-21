@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import os
+import platform
 from typing import Any, Iterable
 
 import yaml
@@ -56,3 +58,23 @@ def slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", slug)
     slug = slug.strip("_")
     return slug or "model"
+
+def resolve_preferred_torch_device():
+    import torch
+
+    system = platform.system()
+
+    # macOS -> MPS 우선
+    if system == "Darwin":
+        mps_backend = getattr(torch.backends, "mps", None)
+        if mps_backend is not None and mps_backend.is_available():
+            os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+            return torch.device("mps"), "mps"
+
+    # Windows -> CUDA 우선
+    elif system == "Windows":
+        if torch.cuda.is_available():
+            return torch.device("cuda"), "cuda"
+
+    # 둘 다 아니면 CPU
+    return torch.device("cpu"), "cpu"
