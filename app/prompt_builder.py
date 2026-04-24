@@ -298,6 +298,79 @@ def build_stage_6_summary_prompt(
     )
 
 
+def build_single_shot_spec_prompt(
+    conversation_units: Iterable[ConversationUnit], prompt_config: dict
+) -> str:
+    instructions = _stage_text(
+        prompt_config,
+        "single_shot_spec_generation",
+        (
+            "Convert the conversation into a complete structured software specification draft. "
+            "Classify functional requirements, non-functional requirements, constraints, "
+            "open questions, follow-up questions, and notes in one pass."
+        ),
+    )
+    schema_hint = {
+        "project_summary": "2-4 sentence summary",
+        "functional_requirements": [
+            {
+                "id": "FR1",
+                "text": "The system shall ...",
+                "source_units": ["U1"],
+            }
+        ],
+        "non_functional_requirements": [
+            {
+                "id": "NFR1",
+                "text": "The system should ...",
+                "source_units": ["U2"],
+            }
+        ],
+        "constraints": [
+            {
+                "id": "CON1",
+                "text": "Initial-release boundary or implementation limitation.",
+                "source_units": ["U3"],
+            }
+        ],
+        "open_questions": [
+            {
+                "text": "Specific unresolved ambiguity?",
+                "source_units": ["U4"],
+            }
+        ],
+        "follow_up_questions": [
+            {
+                "text": "Specific developer question for the client?",
+                "source_units": ["U4"],
+            }
+        ],
+        "notes": [
+            {
+                "text": "Future or contextual note that is not a current hard requirement.",
+                "source_units": ["U5"],
+            }
+        ],
+        "verification_warnings": [],
+    }
+    return (
+        "SINGLE_SHOT_SPEC_GENERATION\n"
+        "You are a requirements analysis assistant.\n"
+        f"{instructions}\n\n"
+        "Rules:\n"
+        "- Conversation may be unlabeled.\n"
+        "- Do not invent unsupported content.\n"
+        "- Do not convert vague or future-scope statements into hard requirements.\n"
+        "- Use non_functional_requirements only for quality attributes such as performance, usability, security, reliability, accessibility, or responsiveness.\n"
+        "- Every item except project_summary must include source_units grounded in the provided conversation unit IDs.\n"
+        "- Return JSON only. Do not include markdown fences or explanation.\n\n"
+        f"Required JSON schema:\n{_dump_json(schema_hint)}\n\n"
+        "Conversation units:\n"
+        f"{_unit_block(conversation_units)}\n\n"
+        "Output JSON only."
+    )
+
+
 # Backward-compatible prompt helpers for old stage numbering.
 def build_stage_4_followup_generation_prompt(
     conversation_units: Iterable[ConversationUnit],

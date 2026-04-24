@@ -14,6 +14,7 @@ from app.extractor import (
     ExtractionError,
     ExtractionMeta,
     enrich_classified_candidates,
+    extract_spec_output_safe,
     parse_json_object_safe,
     semantic_verify,
     validate_stage_1_candidates,
@@ -34,6 +35,7 @@ from app.progress import (
     pipeline_total_steps,
 )
 from app.prompt_builder import (
+    build_single_shot_spec_prompt,
     build_stage_1_candidate_extraction_prompt,
     build_stage_2_candidate_classification_prompt,
     build_stage_3_requirement_rewriting_prompt,
@@ -71,6 +73,34 @@ STAGE_5 = "stage_5_followup_generation"
 STAGE_6 = "stage_6_project_summary"
 
 T = TypeVar("T")
+
+
+ROBUSTNESS_PROFILE_CONFIGS: dict[str, dict[str, Any]] = {
+    "FullChain": {
+        "repair_enabled": True,
+        "max_retries": 2,
+        "stage_fallback_enabled": True,
+        "semantic_verify_enabled": True,
+    },
+    "NoRetry": {
+        "repair_enabled": True,
+        "max_retries": 0,
+        "stage_fallback_enabled": True,
+        "semantic_verify_enabled": True,
+    },
+    "NoSemanticVerify": {
+        "repair_enabled": True,
+        "max_retries": 2,
+        "stage_fallback_enabled": True,
+        "semantic_verify_enabled": False,
+    },
+    "StrictRaw": {
+        "repair_enabled": False,
+        "max_retries": 0,
+        "stage_fallback_enabled": False,
+        "semantic_verify_enabled": False,
+    },
+}
 
 
 class StageRunError(ExtractionError):
@@ -114,6 +144,8 @@ class PipelineRunResult:
     stage_retry_counts: dict[str, int] = field(default_factory=dict)
     stage_failure: Optional[str] = None
     stage_stats: dict[str, Any] = field(default_factory=dict)
+    pipeline_mode: str = "chain"
+    robustness_profile: Optional[str] = None
     output_json_path: Optional[Path] = None
     output_md_path: Optional[Path] = None
     debug_dir: Optional[Path] = None
@@ -137,11 +169,34 @@ class ConversationToSpecPipeline:
         runner: BaseModelRunner,
         prompt_config: dict,
         generation_config: Optional[dict] = None,
+        pipeline_mode: str = "chain",
+        robustness_profile: Optional[str] = None,
+        robustness_config: Optional[dict[str, Any]] = None,
     ) -> None:
         self.runner = runner
         self.prompt_config = prompt_config
         self.generation_config = generation_config or {}
+        if pipeline_mode not in {"chain", "single_shot"}:
+            raise ValueError("pipeline_mode must be 'chain' or 'single_shot'.")
+        self.pipeline_mode = pipeline_mode
+        self.robustness_profile = robustness_profile
+        profile_config = ROBUSTNESS_PROFILE_CONFIGS.get(robustness_profile or "", {})
+        self.robustness_config = {**profile_config, **(robustness_config or {})}
         self.progress_reporter = NullProgressReporter()
+
+    def _max_retries(self) -> int:
+        if "max_retries" in self.robustness_config:
+            return int(self.robustness_config["max_retries"])
+        return int(self.generation_config.get("max_retries", 2))
+
+    def _repair_enabled(self) -> bool:
+        return bool(self.robustness_config.get("repair_enabled", True))
+
+    def _stage_fallback_enabled(self) -> bool:
+        return bool(self.robustness_config.get("stage_fallback_enabled", True))
+
+    def _semantic_verify_enabled(self) -> bool:
+        return bool(self.robustness_config.get("semantic_verify_enabled", True))
 
     @staticmethod
     def _slug(value: str) -> str:
@@ -252,7 +307,10 @@ class ConversationToSpecPipeline:
                     total_completion_tokens, info.get("completion_tokens")
                 )
 
-                payload, parse_meta = parse_json_object_safe(raw_output)
+                payload, parse_meta = parse_json_object_safe(
+                    raw_output,
+                    allow_repair=self._repair_enabled(),
+                )
                 used_repair = used_repair or parse_meta.used_repair
                 error_message = parse_meta.parse_error
                 pydantic_ok = False
@@ -345,7 +403,7 @@ class ConversationToSpecPipeline:
             initial_prompt=prompt,
             required_schema=schema,
             validator=lambda payload: validate_stage_1_candidates(payload, conversation_units),
-            max_retries=int(self.generation_config.get("max_retries", 2)),
+            max_retries=self._max_retries(),
         )
 
     def run_stage_2_candidate_classification(
@@ -375,7 +433,7 @@ class ConversationToSpecPipeline:
             validator=lambda payload: validate_stage_2_classification(
                 payload, stage1_output, conversation_units
             ),
-            max_retries=int(self.generation_config.get("max_retries", 2)),
+            max_retries=self._max_retries(),
         )
         stage2_output = result[0]
         enriched = enrich_classified_candidates(stage2_output, stage1_output)
@@ -426,7 +484,7 @@ class ConversationToSpecPipeline:
                 conversation_units,
                 authorized_rewrite_candidates=enriched_classified_candidates,
             ),
-            max_retries=int(self.generation_config.get("max_retries", 2)),
+            max_retries=self._max_retries(),
         )
 
     def run_stage_4_open_question_generation(
@@ -454,7 +512,7 @@ class ConversationToSpecPipeline:
             initial_prompt=prompt,
             required_schema=schema,
             validator=lambda payload: validate_stage_4_open_questions(payload, conversation_units),
-            max_retries=int(self.generation_config.get("max_retries", 2)),
+            max_retries=self._max_retries(),
         )
 
     def run_stage_5_followup_generation(
@@ -484,7 +542,7 @@ class ConversationToSpecPipeline:
             initial_prompt=prompt,
             required_schema=schema,
             validator=lambda payload: validate_stage_5_followups(payload, conversation_units),
-            max_retries=int(self.generation_config.get("max_retries", 2)),
+            max_retries=self._max_retries(),
         )
 
     def run_stage_4_followup_generation(
@@ -522,7 +580,7 @@ class ConversationToSpecPipeline:
             initial_prompt=prompt,
             required_schema=schema,
             validator=validate_stage_6_summary,
-            max_retries=int(self.generation_config.get("max_retries", 2)),
+            max_retries=self._max_retries(),
         )
 
     def run_stage_5_project_summary(
@@ -716,6 +774,8 @@ class ConversationToSpecPipeline:
             conversation_units=conversation_units,
             verification_warnings=[],
         )
+        if not self._semantic_verify_enabled():
+            return spec, []
         verified_spec, warnings = semantic_verify(spec, conversation_units)
         return verified_spec, warnings
 
@@ -763,10 +823,220 @@ class ConversationToSpecPipeline:
             "stage_retry_counts": run.stage_retry_counts,
             "stage_failure": run.stage_failure,
             "stage_stats": run.stage_stats,
+            "pipeline_mode": run.pipeline_mode,
+            "robustness_profile": run.robustness_profile,
         }
         write_json_file(debug_dir / "summary.json", summary)
 
+    def _run_single_shot_text(
+        self,
+        conversation_text: str,
+        output_dir: Optional[Path] = None,
+        output_basename: str = "spec",
+        save_markdown: bool = True,
+        progress_reporter: Any | None = None,
+    ) -> PipelineRunResult:
+        started = time.perf_counter()
+        previous_reporter = self.progress_reporter
+        self.progress_reporter = progress_reporter or NullProgressReporter()
+        try:
+            total_steps = 2
+            self.progress_reporter.pipeline_started(total_steps=total_steps)
+            try:
+                self.progress_reporter.stage_started(
+                    stage_key=STAGE_0,
+                    step_index=1,
+                    total_steps=total_steps,
+                )
+                conversation_units = segment_conversation(conversation_text)
+                self.progress_reporter.stage_finished(
+                    stage_key=STAGE_0,
+                    step_index=1,
+                    total_steps=total_steps,
+                    result_text=f"completed ({len(conversation_units)} units)",
+                )
+            except Exception as exc:
+                conversation_units = [
+                    ConversationUnit(id="U1", text=conversation_text.strip() or "(empty conversation)")
+                ]
+                error_message = f"Conversation segmentation failed: {exc}"
+                spec = self._build_fallback_spec(conversation_units, error_message)
+                meta = ExtractionMeta(
+                    json_parse_ok=False,
+                    pydantic_validation_ok=False,
+                    used_repair=False,
+                    validation_error=error_message,
+                )
+                run = PipelineRunResult(
+                    spec=spec,
+                    raw_output="",
+                    extraction_meta=meta,
+                    latency_sec=time.perf_counter() - started,
+                    prompt_tokens=None,
+                    completion_tokens=None,
+                    success=False,
+                    status=PIPELINE_STATUS_FAILED_INVALID_OUTPUT,
+                    retry_count=0,
+                    error_message=error_message,
+                    attempt_logs=[],
+                    stage_retry_counts={},
+                    stage_failure="stage_0_segmentation",
+                    stage_stats={"pipeline_mode": "single_shot"},
+                    pipeline_mode="single_shot",
+                    robustness_profile=self.robustness_profile,
+                )
+                if output_dir is not None:
+                    ensure_dir(output_dir)
+                    output_json_path = output_dir / f"{output_basename}.json"
+                    output_md_path = output_dir / f"{output_basename}.md"
+                    write_json_file(output_json_path, model_dump_compat(run.spec))
+                    if save_markdown:
+                        write_text_file(output_md_path, format_spec_markdown(run.spec))
+                    write_text_file(output_dir / "error.log", error_message)
+                    debug_dir = output_dir / "debug" / output_basename
+                    self._write_debug_artifacts(debug_dir, run)
+                    run.output_json_path = output_json_path
+                    run.output_md_path = output_md_path
+                    run.debug_dir = debug_dir
+                self.progress_reporter.pipeline_finished(status=run.status, elapsed_sec=run.latency_sec)
+                return run
+
+            self.progress_reporter.stage_started(
+                stage_key="single_shot_spec_generation",
+                step_index=2,
+                total_steps=total_steps,
+            )
+            prompt = build_single_shot_spec_prompt(conversation_units, self.prompt_config)
+            raw_output = self.runner.generate(prompt, self.generation_config)
+            info = self.runner.last_generation_info or {}
+            latency_sec = float(info.get("latency_sec", 0.0)) or (time.perf_counter() - started)
+            prompt_tokens = info.get("prompt_tokens")
+            completion_tokens = info.get("completion_tokens")
+            spec, meta = extract_spec_output_safe(
+                raw_output,
+                conversation_units,
+                allow_repair=self._repair_enabled(),
+            )
+            semantic_warnings: list[str] = []
+            stage_failure: Optional[str] = None
+            error_message: Optional[str] = None
+            success = spec is not None
+            if spec is None:
+                error_message = meta.validation_error or meta.parse_error or "Invalid single-shot output."
+                stage_failure = "single_shot_spec_generation"
+                spec = self._build_fallback_spec(conversation_units, error_message)
+                status = PIPELINE_STATUS_FAILED_INVALID_OUTPUT
+                self.progress_reporter.stage_finished(
+                    stage_key="single_shot_spec_generation",
+                    step_index=2,
+                    total_steps=total_steps,
+                    result_text=f"failed: {self._short_progress_error(error_message)}",
+                )
+            else:
+                if self._semantic_verify_enabled():
+                    spec, semantic_warnings = semantic_verify(spec, conversation_units)
+                meta.semantic_warnings = semantic_warnings
+                if semantic_warnings:
+                    status = PIPELINE_STATUS_SEMANTIC_WARNING
+                elif meta.used_repair:
+                    status = PIPELINE_STATUS_REPAIRED_SUCCESS
+                else:
+                    status = PIPELINE_STATUS_SUCCESS
+                self.progress_reporter.stage_finished(
+                    stage_key="single_shot_spec_generation",
+                    step_index=2,
+                    total_steps=total_steps,
+                    result_text="completed",
+                )
+
+            stage_stats = {
+                "pipeline_mode": "single_shot",
+                "repair_enabled": self._repair_enabled(),
+                "semantic_verify_enabled": self._semantic_verify_enabled(),
+                "stage_fallback_enabled": self._stage_fallback_enabled(),
+            }
+            attempt_logs = [
+                {
+                    "stage": "single_shot_spec_generation",
+                    "attempt_index": 1,
+                    "prompt_type": "initial",
+                    "raw_output": raw_output,
+                    "repaired_output": meta.repaired_output,
+                    "json_parse_ok": meta.json_parse_ok,
+                    "pydantic_validation_ok": meta.pydantic_validation_ok,
+                    "used_repair": meta.used_repair,
+                    "error_message": error_message,
+                }
+            ]
+            run = PipelineRunResult(
+                spec=spec,
+                raw_output=raw_output,
+                extraction_meta=meta,
+                latency_sec=latency_sec,
+                prompt_tokens=prompt_tokens if isinstance(prompt_tokens, int) else None,
+                completion_tokens=completion_tokens if isinstance(completion_tokens, int) else None,
+                success=success,
+                status=status,
+                retry_count=0,
+                error_message=error_message,
+                attempt_logs=attempt_logs,
+                stage_retry_counts={},
+                stage_failure=stage_failure,
+                stage_stats=stage_stats,
+                pipeline_mode="single_shot",
+                robustness_profile=self.robustness_profile,
+            )
+
+            output_json_path: Optional[Path] = None
+            output_md_path: Optional[Path] = None
+            debug_dir: Optional[Path] = None
+            if output_dir is not None:
+                ensure_dir(output_dir)
+                output_json_path = output_dir / f"{output_basename}.json"
+                output_md_path = output_dir / f"{output_basename}.md"
+                write_json_file(output_json_path, model_dump_compat(spec))
+                if save_markdown:
+                    write_text_file(output_md_path, format_spec_markdown(spec))
+                error_log_path = output_dir / "error.log"
+                if not success:
+                    write_text_file(error_log_path, error_message or "Invalid structured output.")
+                elif error_log_path.exists():
+                    error_log_path.unlink()
+                debug_dir = output_dir / "debug" / output_basename
+                self._write_debug_artifacts(debug_dir, run)
+            run.output_json_path = output_json_path
+            run.output_md_path = output_md_path
+            run.debug_dir = debug_dir
+            self.progress_reporter.pipeline_finished(status=run.status, elapsed_sec=run.latency_sec)
+            return run
+        finally:
+            self.progress_reporter = previous_reporter
+
     def run_text(
+        self,
+        conversation_text: str,
+        output_dir: Optional[Path] = None,
+        output_basename: str = "spec",
+        save_markdown: bool = True,
+        progress_reporter: Any | None = None,
+    ) -> PipelineRunResult:
+        if self.pipeline_mode == "single_shot":
+            return self._run_single_shot_text(
+                conversation_text=conversation_text,
+                output_dir=output_dir,
+                output_basename=output_basename,
+                save_markdown=save_markdown,
+                progress_reporter=progress_reporter,
+            )
+        return self._run_chain_text(
+            conversation_text=conversation_text,
+            output_dir=output_dir,
+            output_basename=output_basename,
+            save_markdown=save_markdown,
+            progress_reporter=progress_reporter,
+        )
+
+    def _run_chain_text(
         self,
         conversation_text: str,
         output_dir: Optional[Path] = None,
@@ -786,7 +1056,12 @@ class ConversationToSpecPipeline:
             stage_retry_counts: dict[str, int] = {}
             stage_attempt_logs: list[list[dict[str, Any]]] = []
             stage_outputs_raw: list[tuple[str, str]] = []
-            stage_stats: dict[str, Any] = {}
+            stage_stats: dict[str, Any] = {
+                "pipeline_mode": "chain",
+                "repair_enabled": self._repair_enabled(),
+                "semantic_verify_enabled": self._semantic_verify_enabled(),
+                "stage_fallback_enabled": self._stage_fallback_enabled(),
+            }
             used_repair_any = False
 
             try:
@@ -834,7 +1109,14 @@ class ConversationToSpecPipeline:
                     attempt_logs=[],
                     stage_retry_counts={},
                     stage_failure="stage_0_segmentation",
-                    stage_stats={},
+                    stage_stats={
+                        "pipeline_mode": "chain",
+                        "repair_enabled": self._repair_enabled(),
+                        "semantic_verify_enabled": self._semantic_verify_enabled(),
+                        "stage_fallback_enabled": self._stage_fallback_enabled(),
+                    },
+                    pipeline_mode="chain",
+                    robustness_profile=self.robustness_profile,
                 )
                 if output_dir is not None:
                     ensure_dir(output_dir)
@@ -871,6 +1153,8 @@ class ConversationToSpecPipeline:
                         conversation_units
                     )
                 except StageRunError as exc:
+                    if not self._stage_fallback_enabled():
+                        raise
                     stage1_output = build_stage_1_fallback_candidates(conversation_units)
                     raw1 = exc.last_raw_output
                     logs1 = exc.attempt_logs
@@ -983,6 +1267,8 @@ class ConversationToSpecPipeline:
                         stage3_output,
                     )
                 except StageRunError as exc:
+                    if not self._stage_fallback_enabled():
+                        raise
                     stage4_output = self._build_fallback_open_questions(enriched_stage2)
                     raw4 = exc.last_raw_output
                     logs4 = exc.attempt_logs
@@ -1032,6 +1318,8 @@ class ConversationToSpecPipeline:
                         open_questions,
                     )
                 except StageRunError as exc:
+                    if not self._stage_fallback_enabled():
+                        raise
                     stage5_output = self._build_fallback_followups(
                         open_questions=open_questions,
                         notes=notes,
@@ -1082,6 +1370,8 @@ class ConversationToSpecPipeline:
                         notes,
                     )
                 except StageRunError as exc:
+                    if not self._stage_fallback_enabled():
+                        raise
                     stage6_output = self._build_fallback_summary(stage3_output, open_questions, notes)
                     raw6 = exc.last_raw_output
                     logs6 = exc.attempt_logs
@@ -1189,6 +1479,8 @@ class ConversationToSpecPipeline:
                 stage_retry_counts=stage_retry_counts,
                 stage_failure=stage_failure,
                 stage_stats=stage_stats,
+                pipeline_mode="chain",
+                robustness_profile=self.robustness_profile,
             )
 
             output_json_path: Optional[Path] = None

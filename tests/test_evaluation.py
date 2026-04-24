@@ -60,6 +60,8 @@ def test_compute_metrics_includes_chain_robustness_keys():
                 "final_status": "success",
                 "retry_count": 1,
                 "retry_success": True,
+                "retry_recovery": True,
+                "fallback_rescue": False,
                 "semantic_warning": False,
                 "stage_failure": None,
                 "stage_retry_counts": {"stage_2_candidate_classification": 1},
@@ -78,6 +80,8 @@ def test_compute_metrics_includes_chain_robustness_keys():
     assert "json_parse_success_rate" in metrics
     assert "pydantic_validation_success_rate" in metrics
     assert "retry_success_rate" in metrics
+    assert "retry_recovery_rate" in metrics
+    assert "fallback_rescue_rate" in metrics
     assert "final_usable_output_rate" in metrics
     assert "semantic_warning_rate" in metrics
     assert "avg_stage_1_candidate_count" in metrics
@@ -119,6 +123,8 @@ def test_compute_metrics_accepts_legacy_stage_key_fallback():
                 "final_status": "failed",
                 "retry_count": 0,
                 "retry_success": False,
+                "retry_recovery": False,
+                "fallback_rescue": False,
                 "semantic_warning": False,
                 "stage_failure": None,
                 "stage_retry_counts": {},
@@ -148,6 +154,8 @@ def test_comparison_table_uses_new_stage_diagnostic_columns():
                     "json_parse_success_rate": 0.5,
                     "pydantic_validation_success_rate": 0.6,
                     "retry_success_rate": 0.7,
+                    "retry_recovery_rate": 0.65,
+                    "fallback_rescue_rate": 0.15,
                     "final_usable_output_rate": 0.8,
                     "semantic_warning_rate": 0.9,
                     "avg_stage_1_candidate_count": 1.1,
@@ -161,6 +169,8 @@ def test_comparison_table_uses_new_stage_diagnostic_columns():
     )
     assert "stage4_open_questions" in table
     assert "stage5_follow_ups" in table
+    assert "retry_recovery" in table
+    assert "fallback_rescue" in table
     assert "1.3000" in table
     assert "1.4000" in table
 
@@ -178,6 +188,19 @@ def test_comparison_table_accepts_legacy_stage_metric_key():
     assert "stage4_open_questions" in table
     assert "stage5_follow_ups" in table
     assert "2.5000 | 2.5000" in table
+
+
+def test_comparison_table_marks_null_semantic_warning_as_na():
+    table = build_comparison_table(
+        {
+            "NoSemanticVerify": {
+                "metrics": {
+                    "semantic_warning_rate": None,
+                }
+            }
+        }
+    )
+    assert "N/A" in table
 
 
 def test_evaluate_model_writes_debug_and_prediction_artifacts(tmp_path: Path):
@@ -205,8 +228,10 @@ def test_evaluate_model_writes_debug_and_prediction_artifacts(tmp_path: Path):
         pipeline=pipeline,
         samples=samples,
         output_dir=tmp_path,
+        run_metadata={"pipeline_mode": "chain", "ablation_profile": "FullChain"},
     )
     assert "metrics" in report
     assert (tmp_path / "metrics.json").exists()
+    assert (tmp_path / "run_config.json").exists()
     assert (tmp_path / "predictions" / "mini_pred.json").exists()
     assert (tmp_path / "debug" / "mini" / "summary.json").exists()

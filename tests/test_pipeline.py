@@ -279,6 +279,41 @@ def test_final_assembly_preserves_schema(tmp_path: Path):
     assert "notes" in loaded
 
 
+def test_single_shot_pipeline_preserves_schema(tmp_path: Path):
+    input_path = tmp_path / "sample.txt"
+    input_path.write_text(_sample_text(), encoding="utf-8")
+    pipeline = ConversationToSpecPipeline(
+        runner=MockModelRunner(),
+        prompt_config=load_prompt_config(),
+        generation_config={"max_retries": 1},
+        pipeline_mode="single_shot",
+    )
+    run = pipeline.run_file(input_path=input_path, output_dir=tmp_path)
+
+    assert run.success is True
+    assert run.pipeline_mode == "single_shot"
+    assert run.spec.project_summary
+    assert (tmp_path / "spec.json").exists()
+    loaded = json.loads((tmp_path / "spec.json").read_text(encoding="utf-8"))
+    assert "functional_requirements" in loaded
+    assert "non_functional_requirements" in loaded
+    assert "follow_up_questions" in loaded
+
+
+def test_strict_raw_profile_disables_stage_fallback():
+    pipeline = ConversationToSpecPipeline(
+        runner=Stage1PlaceholderRunner(),
+        prompt_config=load_prompt_config(),
+        generation_config={"max_retries": 0},
+        robustness_profile="StrictRaw",
+    )
+    run = pipeline.run_text(_sample_text())
+
+    assert run.success is False
+    assert run.stage_failure == "stage_1_candidate_extraction"
+    assert run.stage_stats.get("stage_fallback_enabled") is False
+
+
 def test_stage_failure_does_not_crash_batch_evaluation(tmp_path: Path):
     samples = [
         {

@@ -1,11 +1,12 @@
-default_model: gemma_3_1b_it
+default_model: qwen2_5_3b_instruct
 
 compare_models:
+  - qwen_0_5b
+  - qwen_1_5b
+  - tinyllama_1_1b
   - gemma_3_1b_it
   - qwen2_5_3b_instruct
-  - mistral_7b_instruct
   - phi_3_5_mini_instruct
-  - gemma_4_e2b_it
 
 generation:
   max_new_tokens: 900
@@ -15,6 +16,12 @@ generation:
   max_retries: 2
 
 models:
+  qwen_0_5b:
+    hf_repo_id: Qwen/Qwen2.5-0.5B-Instruct
+  qwen_1_5b:
+    hf_repo_id: Qwen/Qwen2.5-1.5B-Instruct
+  tinyllama_1_1b:
+    hf_repo_id: TinyLlama/TinyLlama-1.1B-Chat-v1.0
   gemma_3_1b_it:
     hf_repo_id: google/gemma-3-1b-it
   qwen2_5_3b_instruct:

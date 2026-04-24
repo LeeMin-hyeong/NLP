@@ -24,6 +24,8 @@ class SampleStatus:
     final_status: str = ""
     retry_count: int = 0
     retry_success: bool = False
+    retry_recovery: bool = False
+    fallback_rescue: bool = False
     semantic_warning: bool = False
     stage_failure: Optional[str] = None
     stage_retry_counts: dict[str, int] = None
@@ -176,6 +178,14 @@ def compute_metrics(
         retry_success_rate = (
             sum(1 for status in sample_statuses.values() if status.retry_success) / sample_count
         )
+        retry_recovery_rate = (
+            sum(1 for status in sample_statuses.values() if getattr(status, "retry_recovery", False))
+            / sample_count
+        )
+        fallback_rescue_rate = (
+            sum(1 for status in sample_statuses.values() if getattr(status, "fallback_rescue", False))
+            / sample_count
+        )
         semantic_warning_rate = (
             sum(1 for status in sample_statuses.values() if status.semantic_warning) / sample_count
         )
@@ -185,6 +195,8 @@ def compute_metrics(
         full_schema_rate = 0.0
         usable_output_rate = 0.0
         retry_success_rate = 0.0
+        retry_recovery_rate = 0.0
+        fallback_rescue_rate = 0.0
         semantic_warning_rate = 0.0
 
     stage_failure_counts: dict[str, int] = {}
@@ -275,6 +287,8 @@ def compute_metrics(
         "json_parse_success_rate": parse_rate,
         "pydantic_validation_success_rate": validation_rate,
         "retry_success_rate": retry_success_rate,
+        "retry_recovery_rate": retry_recovery_rate,
+        "fallback_rescue_rate": fallback_rescue_rate,
         "final_usable_output_rate": usable_output_rate,
         "semantic_warning_rate": semantic_warning_rate,
         "avg_stage_retry_count": (
@@ -297,6 +311,15 @@ def compute_metrics(
         "non_functional_f1_normalized": nfr_norm["f1"],
         "constraint_f1_normalized": con_norm["f1"],
     }
+
+
+def _format_metric(value: Any) -> str:
+    if value is None:
+        return "N/A"
+    try:
+        return f"{float(value):.4f}"
+    except Exception:
+        return "N/A"
 
 
 def _write_sample_debug_artifacts(sample_debug_dir: Path, run: Any) -> None:
@@ -329,6 +352,9 @@ def _write_sample_debug_artifacts(sample_debug_dir: Path, run: Any) -> None:
         "pydantic_validation_ok": bool(getattr(run, "pydantic_validation_ok", False)),
         "semantic_warnings": list(getattr(run, "semantic_warnings", []) or []),
         "error_message": getattr(run, "error_message", None),
+        "stage_stats": getattr(run, "stage_stats", {}),
+        "pipeline_mode": getattr(run, "pipeline_mode", "chain"),
+        "robustness_profile": getattr(run, "robustness_profile", None),
         "latency_sec": float(getattr(run, "latency_sec", 0.0)),
     }
     write_json_file(sample_debug_dir / "summary.json", summary)
@@ -340,6 +366,7 @@ def evaluate_model(
     samples: list[dict[str, Any]],
     output_dir: Path,
     progress_reporter: Any | None = None,
+    run_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     reporter = progress_reporter or NullProgressReporter()
     predictions_dir = output_dir / "predictions"
@@ -383,6 +410,17 @@ def evaluate_model(
                     run.error_message or "Invalid structured output.",
                 )
 
+            fallback_used = any(
+                key.endswith("_fallback_used") and bool(value)
+                for key, value in dict(run.stage_stats).items()
+            )
+            retry_recovery = bool(run.success and run.retry_count > 0 and not fallback_used)
+            fallback_rescue = bool(run.success and fallback_used)
+            stage_stats = dict(run.stage_stats)
+            semantic_warning = bool(
+                len(run.semantic_warnings) > 0
+                and stage_stats.get("semantic_verify_enabled", True)
+            )
             statuses[sid] = SampleStatus(
                 sample_id=sid,
                 success=bool(run.success),
@@ -392,10 +430,12 @@ def evaluate_model(
                 final_status=str(run.status),
                 retry_count=int(run.retry_count),
                 retry_success=bool(run.success and run.retry_count > 0),
-                semantic_warning=bool(len(run.semantic_warnings) > 0),
+                retry_recovery=retry_recovery,
+                fallback_rescue=fallback_rescue,
+                semantic_warning=semantic_warning,
                 stage_failure=run.stage_failure,
                 stage_retry_counts=dict(run.stage_retry_counts),
-                stage_stats=dict(run.stage_stats),
+                stage_stats=stage_stats,
                 error=run.error_message,
             )
             details.append(
@@ -404,13 +444,17 @@ def evaluate_model(
                     "success": bool(run.success),
                     "status": str(run.status),
                     "retry_count": int(run.retry_count),
+                    "retry_recovery": retry_recovery,
+                    "fallback_rescue": fallback_rescue,
                     "stage_retry_counts": dict(run.stage_retry_counts),
                     "stage_failure": run.stage_failure,
-                    "stage_stats": dict(run.stage_stats),
-                    "semantic_warning": bool(len(run.semantic_warnings) > 0),
+                    "stage_stats": stage_stats,
+                    "semantic_warning": semantic_warning,
                     "latency_sec": float(run.latency_sec) if run.success else 0.0,
                     "json_parse_ok": bool(run.json_parse_ok),
                     "pydantic_validation_ok": bool(run.pydantic_validation_ok),
+                    "pipeline_mode": getattr(run, "pipeline_mode", "chain"),
+                    "robustness_profile": getattr(run, "robustness_profile", None),
                     "error": run.error_message,
                 }
             )
@@ -431,6 +475,8 @@ def evaluate_model(
                 final_status="failed_invalid_output",
                 retry_count=0,
                 retry_success=False,
+                retry_recovery=False,
+                fallback_rescue=False,
                 semantic_warning=False,
                 stage_failure="exception",
                 stage_retry_counts={},
@@ -444,6 +490,8 @@ def evaluate_model(
                     "success": False,
                     "status": "failed_invalid_output",
                     "retry_count": 0,
+                    "retry_recovery": False,
+                    "fallback_rescue": False,
                     "stage_retry_counts": {},
                     "stage_failure": "exception",
                     "stage_stats": {},
@@ -451,6 +499,8 @@ def evaluate_model(
                     "latency_sec": 0.0,
                     "json_parse_ok": False,
                     "pydantic_validation_ok": False,
+                    "pipeline_mode": getattr(pipeline, "pipeline_mode", "chain"),
+                    "robustness_profile": getattr(pipeline, "robustness_profile", None),
                     "error": str(exc),
                 }
             )
@@ -463,8 +513,17 @@ def evaluate_model(
             )
 
     metrics = compute_metrics(samples, predicted_specs, statuses)
+    if not getattr(pipeline, "_semantic_verify_enabled", lambda: True)():
+        metrics["semantic_warning_rate"] = None
     write_json_file(output_dir / "metrics.json", metrics)
-    report = {"model": model_label, "metrics": metrics, "samples": details}
+    report = {
+        "model": model_label,
+        "metrics": metrics,
+        "samples": details,
+        "run_metadata": run_metadata or {},
+    }
+    if run_metadata:
+        write_json_file(output_dir / "run_config.json", run_metadata)
     write_json_file(output_dir / "details.json", report)
     return report
 
@@ -474,11 +533,11 @@ def build_comparison_table(results: dict[str, dict[str, Any]]) -> str:
         "| model | functional_f1 | non_functional_f1 | constraint_f1 | macro_f1 | "
         "open_question_recall | follow_up_coverage | hallucination_rate | "
         "schema_validity_rate | json_parse_success | pydantic_success | "
-        "retry_success | usable_output | semantic_warning | "
+        "retry_success | retry_recovery | fallback_rescue | usable_output | semantic_warning | "
         "stage1_candidates | stage2_discard_rate | stage4_open_questions | stage5_follow_ups | avg_latency_sec |\n"
     )
     divider = (
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n"
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n"
     )
     rows: list[str] = []
     for model_label, report in results.items():
@@ -488,24 +547,26 @@ def build_comparison_table(results: dict[str, dict[str, Any]]) -> str:
             + " | ".join(
                 [
                     model_label,
-                    f"{metrics.get('functional_f1', 0.0):.4f}",
-                    f"{metrics.get('non_functional_f1', 0.0):.4f}",
-                    f"{metrics.get('constraint_f1', 0.0):.4f}",
-                    f"{metrics.get('requirement_type_macro_f1', 0.0):.4f}",
-                    f"{metrics.get('open_question_recall', 0.0):.4f}",
-                    f"{metrics.get('follow_up_question_coverage', 0.0):.4f}",
-                    f"{metrics.get('hallucination_rate', 0.0):.4f}",
-                    f"{metrics.get('schema_validity_rate', 0.0):.4f}",
-                    f"{metrics.get('json_parse_success_rate', 0.0):.4f}",
-                    f"{metrics.get('pydantic_validation_success_rate', 0.0):.4f}",
-                    f"{metrics.get('retry_success_rate', 0.0):.4f}",
-                    f"{metrics.get('final_usable_output_rate', 0.0):.4f}",
-                    f"{metrics.get('semantic_warning_rate', 0.0):.4f}",
-                    f"{metrics.get('avg_stage_1_candidate_count', 0.0):.4f}",
-                    f"{metrics.get('avg_stage_2_discard_rate', 0.0):.4f}",
-                    f"{metrics.get('avg_stage_4_open_question_count', metrics.get('avg_stage_4_follow_up_count', 0.0)):.4f}",
-                    f"{metrics.get('avg_stage_5_follow_up_count', metrics.get('avg_stage_4_follow_up_count', 0.0)):.4f}",
-                    f"{metrics.get('avg_latency_sec', 0.0):.4f}",
+                    _format_metric(metrics.get('functional_f1', 0.0)),
+                    _format_metric(metrics.get('non_functional_f1', 0.0)),
+                    _format_metric(metrics.get('constraint_f1', 0.0)),
+                    _format_metric(metrics.get('requirement_type_macro_f1', 0.0)),
+                    _format_metric(metrics.get('open_question_recall', 0.0)),
+                    _format_metric(metrics.get('follow_up_question_coverage', 0.0)),
+                    _format_metric(metrics.get('hallucination_rate', 0.0)),
+                    _format_metric(metrics.get('schema_validity_rate', 0.0)),
+                    _format_metric(metrics.get('json_parse_success_rate', 0.0)),
+                    _format_metric(metrics.get('pydantic_validation_success_rate', 0.0)),
+                    _format_metric(metrics.get('retry_success_rate', 0.0)),
+                    _format_metric(metrics.get('retry_recovery_rate', 0.0)),
+                    _format_metric(metrics.get('fallback_rescue_rate', 0.0)),
+                    _format_metric(metrics.get('final_usable_output_rate', 0.0)),
+                    _format_metric(metrics.get('semantic_warning_rate', 0.0)),
+                    _format_metric(metrics.get('avg_stage_1_candidate_count', 0.0)),
+                    _format_metric(metrics.get('avg_stage_2_discard_rate', 0.0)),
+                    _format_metric(metrics.get('avg_stage_4_open_question_count', metrics.get('avg_stage_4_follow_up_count', 0.0))),
+                    _format_metric(metrics.get('avg_stage_5_follow_up_count', metrics.get('avg_stage_4_follow_up_count', 0.0))),
+                    _format_metric(metrics.get('avg_latency_sec', 0.0)),
                 ]
             )
             + " |"

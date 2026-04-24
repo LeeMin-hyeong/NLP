@@ -1,155 +1,82 @@
-[
-  {
+{
+  "mock": {
     "model": "mock",
-    "aggregate_metrics": {
-      "requirement_precision": 0.037037037037037035,
-      "requirement_recall": 0.034482758620689655,
-      "requirement_f1": 0.03571428571428571,
-      "requirement_exact_precision": 0.037037037037037035,
-      "requirement_exact_recall": 0.034482758620689655,
-      "requirement_exact_f1": 0.03571428571428571,
-      "type_classification_macro_f1": 0.023529411764705882,
-      "type_f1_by_category": {
-        "functional": 0.0,
-        "non_functional": 0.11764705882352941,
-        "constraint": 0.0,
-        "assumption": 0.0,
-        "open_question": 0.0
-      },
-      "evidence_precision": 0.016666666666666666,
-      "evidence_recall": 0.019230769230769232,
-      "evidence_f1": 0.01785714285714286,
-      "evidence_jaccard": 0.009174311926605505,
-      "hallucination_rate": 0.9629629629629629,
+    "metrics": {
+      "sample_count": 6,
+      "functional_precision": 0.0,
+      "functional_recall": 0.0,
+      "functional_f1": 0.0,
+      "non_functional_precision": 0.0,
+      "non_functional_recall": 0.0,
+      "non_functional_f1": 0.0,
+      "constraint_precision": 0.0,
+      "constraint_recall": 0.0,
+      "constraint_f1": 0.0,
+      "requirement_type_macro_f1": 0.0,
       "open_question_recall": 0.0,
+      "follow_up_question_coverage": 0.0,
+      "hallucination_rate": 1.0,
+      "schema_json_parse_validity_rate": 1.0,
+      "schema_pydantic_validity_rate": 1.0,
+      "schema_validity_rate": 1.0,
       "json_parse_success_rate": 1.0,
       "pydantic_validation_success_rate": 1.0,
-      "first_pass_json_parse_success_rate": 1.0,
-      "first_pass_pydantic_validation_success_rate": 1.0,
-      "avg_latency_sec": 0.0001535761669705001,
-      "avg_prompt_tokens": null,
-      "avg_completion_tokens": null,
-      "num_samples": 6,
-      "failure_clusters": {
-        "high_hallucination": 6,
-        "open_question_miss": 6
-      }
-    },
-    "per_sample": [
-      {
-        "sample_id": "cafe_website",
-        "json_parse_ok": true,
-        "pydantic_validation_ok": true,
-        "first_pass_json_parse_ok": true,
-        "first_pass_pydantic_validation_ok": true,
-        "error": null,
-        "requirement_precision": 0.0,
-        "requirement_recall": 0.0,
-        "requirement_f1": 0.0,
-        "hallucination_rate": 1.0,
-        "failure_tags": [
-          "high_hallucination",
-          "open_question_miss"
-        ],
-        "latency_sec": 0.00025033299971255474,
-        "chunks_used": 1,
-        "retries_used": 0
+      "retry_success_rate": 0.0,
+      "final_usable_output_rate": 1.0,
+      "semantic_warning_rate": 0.16666666666666666,
+      "avg_stage_retry_count": 0.0,
+      "avg_stage_1_candidate_count": 7.833333333333333,
+      "avg_stage_2_discard_rate": 0.0,
+      "avg_stage_4_open_question_count": 1.0,
+      "avg_stage_5_follow_up_count": 4.0,
+      "avg_stage_4_follow_up_count": 4.0,
+      "stage_failure_counts": {},
+      "constraint_semantic_warning_count": 0,
+      "avg_latency_sec": 0.0013809166703140363,
+      "functional_f1_normalized": 0.0,
+      "non_functional_f1_normalized": 0.0,
+      "constraint_f1_normalized": 0.0
+    }
+  },
+  "Qwen_Qwen2.5-0.5B-Instruct": {
+    "model": "Qwen_Qwen2.5-0.5B-Instruct",
+    "metrics": {
+      "sample_count": 6,
+      "functional_precision": 0.0,
+      "functional_recall": 0.0,
+      "functional_f1": 0.0,
+      "non_functional_precision": 0.0,
+      "non_functional_recall": 0.0,
+      "non_functional_f1": 0.0,
+      "constraint_precision": 0.0,
+      "constraint_recall": 0.0,
+      "constraint_f1": 0.0,
+      "requirement_type_macro_f1": 0.0,
+      "open_question_recall": 0.0,
+      "follow_up_question_coverage": 0.0,
+      "hallucination_rate": 1.0,
+      "schema_json_parse_validity_rate": 0.8333333333333334,
+      "schema_pydantic_validity_rate": 0.8333333333333334,
+      "schema_validity_rate": 0.8333333333333334,
+      "json_parse_success_rate": 0.8333333333333334,
+      "pydantic_validation_success_rate": 0.8333333333333334,
+      "retry_success_rate": 0.0,
+      "final_usable_output_rate": 0.8333333333333334,
+      "semantic_warning_rate": 0.6666666666666666,
+      "avg_stage_retry_count": 0.0,
+      "avg_stage_1_candidate_count": 5.666666666666667,
+      "avg_stage_2_discard_rate": 0.0,
+      "avg_stage_4_open_question_count": 1.0,
+      "avg_stage_5_follow_up_count": 1.0,
+      "avg_stage_4_follow_up_count": 1.0,
+      "stage_failure_counts": {
+        "stage_2_candidate_classification": 1
       },
-      {
-        "sample_id": "school_club_scheduler",
-        "json_parse_ok": true,
-        "pydantic_validation_ok": true,
-        "first_pass_json_parse_ok": true,
-        "first_pass_pydantic_validation_ok": true,
-        "error": null,
-        "requirement_precision": 0.0,
-        "requirement_recall": 0.0,
-        "requirement_f1": 0.0,
-        "hallucination_rate": 1.0,
-        "failure_tags": [
-          "high_hallucination",
-          "open_question_miss"
-        ],
-        "latency_sec": 0.00015670799984945916,
-        "chunks_used": 1,
-        "retries_used": 0
-      },
-      {
-        "sample_id": "dental_clinic_booking",
-        "json_parse_ok": true,
-        "pydantic_validation_ok": true,
-        "first_pass_json_parse_ok": true,
-        "first_pass_pydantic_validation_ok": true,
-        "error": null,
-        "requirement_precision": 0.0,
-        "requirement_recall": 0.0,
-        "requirement_f1": 0.0,
-        "hallucination_rate": 1.0,
-        "failure_tags": [
-          "high_hallucination",
-          "open_question_miss"
-        ],
-        "latency_sec": 0.000131207998492755,
-        "chunks_used": 1,
-        "retries_used": 0
-      },
-      {
-        "sample_id": "gym_class_booking",
-        "json_parse_ok": true,
-        "pydantic_validation_ok": true,
-        "first_pass_json_parse_ok": true,
-        "first_pass_pydantic_validation_ok": true,
-        "error": null,
-        "requirement_precision": 0.0,
-        "requirement_recall": 0.0,
-        "requirement_f1": 0.0,
-        "hallucination_rate": 1.0,
-        "failure_tags": [
-          "high_hallucination",
-          "open_question_miss"
-        ],
-        "latency_sec": 0.0001258750016859267,
-        "chunks_used": 1,
-        "retries_used": 0
-      },
-      {
-        "sample_id": "tutor_slot_platform",
-        "json_parse_ok": true,
-        "pydantic_validation_ok": true,
-        "first_pass_json_parse_ok": true,
-        "first_pass_pydantic_validation_ok": true,
-        "error": null,
-        "requirement_precision": 0.0,
-        "requirement_recall": 0.0,
-        "requirement_f1": 0.0,
-        "hallucination_rate": 1.0,
-        "failure_tags": [
-          "high_hallucination",
-          "open_question_miss"
-        ],
-        "latency_sec": 0.00013162500181351788,
-        "chunks_used": 1,
-        "retries_used": 0
-      },
-      {
-        "sample_id": "library_room_reservation",
-        "json_parse_ok": true,
-        "pydantic_validation_ok": true,
-        "first_pass_json_parse_ok": true,
-        "first_pass_pydantic_validation_ok": true,
-        "error": null,
-        "requirement_precision": 0.2,
-        "requirement_recall": 0.25,
-        "requirement_f1": 0.22222222222222224,
-        "hallucination_rate": 0.8,
-        "failure_tags": [
-          "high_hallucination",
-          "open_question_miss"
-        ],
-        "latency_sec": 0.00012570800026878715,
-        "chunks_used": 1,
-        "retries_used": 0
-      }
-    ]
+      "constraint_semantic_warning_count": 6,
+      "avg_latency_sec": 45.30287888000603,
+      "functional_f1_normalized": 0.0,
+      "non_functional_f1_normalized": 0.0,
+      "constraint_f1_normalized": 0.0
+    }
   }
-]
+}

@@ -29,6 +29,17 @@ class HFModelRunner(BaseModelRunner):
         self._model = None
         self._device = None
 
+    def _load_tokenizer(self, auto_tokenizer: Any) -> Any:
+        try:
+            return auto_tokenizer.from_pretrained(self.model_name)
+        except AttributeError as exc:
+            # Gemma 4 can surface extra_special_tokens as a list during tokenizer
+            # initialization. Retrying with an explicit empty mapping avoids that
+            # incompatible path without changing other models.
+            if "keys" not in str(exc):
+                raise
+            return auto_tokenizer.from_pretrained(self.model_name, extra_special_tokens={})
+
     def _ensure_loaded(self) -> None:
         if self._model is not None and self._tokenizer is not None:
             return
@@ -44,9 +55,9 @@ class HFModelRunner(BaseModelRunner):
         self._torch = torch
         self._device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self._tokenizer = self._load_tokenizer(AutoTokenizer)
         dtype = torch.float16 if self._device == "cuda" else torch.float32
-        model_kwargs: dict[str, Any] = {"torch_dtype": dtype}
+        model_kwargs: dict[str, Any] = {"dtype": dtype}
         if self._device == "cuda":
             model_kwargs["device_map"] = "auto"
 

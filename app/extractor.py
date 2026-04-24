@@ -296,7 +296,11 @@ def _build_candidates(raw_output: str) -> list[str]:
     return candidates
 
 
-def parse_json_object_safe(raw_output: str) -> tuple[dict[str, Any] | None, ExtractionMeta]:
+def parse_json_object_safe(
+    raw_output: str,
+    *,
+    allow_repair: bool = True,
+) -> tuple[dict[str, Any] | None, ExtractionMeta]:
     meta = ExtractionMeta()
     candidates = _build_candidates(raw_output)
     errors: list[str] = []
@@ -312,23 +316,27 @@ def parse_json_object_safe(raw_output: str) -> tuple[dict[str, Any] | None, Extr
         except Exception as exc:
             errors.append(f"c{idx}/raw: {exc}")
 
-    for idx, candidate in enumerate(candidates, start=1):
-        repaired = lightweight_repair_json(candidate)
-        try:
-            parsed = json.loads(repaired)
-            if not isinstance(parsed, dict):
-                errors.append(f"c{idx}/repair: top-level JSON must be an object")
-                continue
-            meta.json_parse_ok = True
-            meta.used_repair = True
-            meta.repaired_output = repaired
-            return parsed, meta
-        except Exception as exc:
-            errors.append(f"c{idx}/repair: {exc}")
+    if allow_repair:
+        for idx, candidate in enumerate(candidates, start=1):
+            repaired = lightweight_repair_json(candidate)
+            try:
+                parsed = json.loads(repaired)
+                if not isinstance(parsed, dict):
+                    errors.append(f"c{idx}/repair: top-level JSON must be an object")
+                    continue
+                meta.json_parse_ok = True
+                meta.used_repair = True
+                meta.repaired_output = repaired
+                return parsed, meta
+            except Exception as exc:
+                errors.append(f"c{idx}/repair: {exc}")
 
     if not errors:
         errors.append("no JSON candidate found")
-    meta.parse_error = "JSON parse failed after one repair pass: " + " | ".join(errors)
+    if allow_repair:
+        meta.parse_error = "JSON parse failed after one repair pass: " + " | ".join(errors)
+    else:
+        meta.parse_error = "JSON parse failed with repair disabled: " + " | ".join(errors)
     return None, meta
 
 
@@ -1218,8 +1226,10 @@ def semantic_verify(
 def extract_spec_output_safe(
     raw_output: str,
     conversation_units: Iterable[ConversationUnit],
+    *,
+    allow_repair: bool = True,
 ) -> tuple[SpecOutput | None, ExtractionMeta]:
-    payload, meta = parse_json_object_safe(raw_output)
+    payload, meta = parse_json_object_safe(raw_output, allow_repair=allow_repair)
     if payload is None:
         return None, meta
     try:
